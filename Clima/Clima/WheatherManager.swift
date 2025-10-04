@@ -9,9 +9,16 @@
 import Foundation
 
 
+protocol WeatherManagerDelegate {
+    
+    func didUpdateWeather(weather: WeatherModel)
+}
+
 struct WheatherManager {
     
 
+    var delegate: WeatherManagerDelegate?
+    
     let wheatherUrl = "https://api.openweathermap.org/data/2.5/weather?appid=40d4ca02fe5a70771cb0a9cc744c5a85&units=metric";
     
     
@@ -38,7 +45,13 @@ struct WheatherManager {
                 }
                 
                 if let safeData = data{
-                    self.parseJSON(weatherData: safeData)
+                    if  let weather = self.parseJSON(weatherData: safeData){
+//                        let weatherVC = WeatherViewController()
+//                        weatherVC.didUpdateWeather(weather: weather);
+                        // Instend of the above use the delegate
+                        
+                        self.delegate?.didUpdateWeather(weather: weather)
+                    }
                 }
 
             }
@@ -48,7 +61,7 @@ struct WheatherManager {
             
         }
     }
-    func parseJSON(weatherData: Data){
+    func parseJSON(weatherData: Data) -> WeatherModel? {
         let decorder = JSONDecoder()
         
         do{
@@ -58,10 +71,11 @@ struct WheatherManager {
             let name = decodedData.name
             
             let weather = WeatherModel(conditionId: id, cityName: name, temperature: temp)
-          
+          return weather
             
         }catch{
             print(error)
+            return nil
         }
     }
     
