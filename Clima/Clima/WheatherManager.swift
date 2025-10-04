@@ -11,7 +11,9 @@ import Foundation
 
 protocol WeatherManagerDelegate {
     
-    func didUpdateWeather(weather: WeatherModel)
+    func didUpdateWeather(_ weatherManager: WheatherManager, weather: WeatherModel)
+    
+    func didFailWithError(error: Error)
 }
 
 struct WheatherManager {
@@ -41,6 +43,7 @@ struct WheatherManager {
                 
                 if error != nil{
                     print(error!)
+                    self.delegate?.didFailWithError(error: error!)
                     return
                 }
                 
@@ -50,7 +53,7 @@ struct WheatherManager {
 //                        weatherVC.didUpdateWeather(weather: weather);
                         // Instend of the above use the delegate
                         
-                        self.delegate?.didUpdateWeather(weather: weather)
+                        self.delegate?.didUpdateWeather(self, weather: weather)
                     }
                 }
 
@@ -75,6 +78,7 @@ struct WheatherManager {
             
         }catch{
             print(error)
+            delegate?.didFailWithError(error: error)
             return nil
         }
     }
