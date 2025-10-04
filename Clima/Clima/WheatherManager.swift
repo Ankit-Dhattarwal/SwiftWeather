@@ -30,24 +30,40 @@ struct WheatherManager {
             let sesssion = URLSession(configuration: .default)
          
             // Give Session a task
-            let task = sesssion.dataTask(with: url, completionHandler: dataHandle(data: response: error: ))
+            let task = sesssion.dataTask(with: url) { (data, response, error) in
+                
+                if error != nil{
+                    print(error!)
+                    return
+                }
+                
+                if let safeData = data{
+                    self.parseJSON(weatherData: safeData)
+                }
+
+            }
             
             // Start a task
             task.resume()
             
         }
+    }
+    func parseJSON(weatherData: Data){
+        let decorder = JSONDecoder()
         
-        func dataHandle(data: Data?, response: URLResponse?, error: Error?){
+        do{
+            let decodedData = try decorder.decode(WeatherData.self, from: weatherData)
+           let id = decodedData.weather[0].id
+            let temp = decodedData.main.temp
+            let name = decodedData.name
             
-            if error != nil{
-                print(error!)
-                return
-            }
+            let weather = WeatherModel(conditionId: id, cityName: name, temperature: temp)
+          
             
-            if let safeData = data{
-                let dataString = String(data: safeData, encoding: .utf8)
-                print(dataString!)
-            }
+        }catch{
+            print(error)
         }
     }
+    
+    
 }
